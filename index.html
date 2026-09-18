@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JamCrate Player</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#14161a">
+<link rel="icon" href="icons/favicon.png">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header><span id="app-title">JamCrate Player</span></header>
+<main id="screen"></main>
+<div id="toast" hidden></div>
+<div id="settings" hidden></div>
+<input type="file" id="file" accept=".jamcrate.zip,.zip" hidden>
+<script type="module" src="app.js"></script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "JamCrate Player",
+  "short_name": "JamCrate",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#14161a",
+  "theme_color": "#14161a",
+  "lang": "en",
+  "icons": [
+    { "src": "icons/favicon.png", "sizes": "128x128", "type": "image/png" }
+  ]
+}
