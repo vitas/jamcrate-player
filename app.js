@@ -16,7 +16,7 @@ const STR = {
     importing: 'Importing…', importFailed: 'Import failed',
     start: 'Start', back: 'Back', nowPlaying: 'Now playing',
     fragments: 'Fragments', fullSong: 'Full song', loopOn: 'Loop',
-    autoAdvance: 'Auto advance to next song', keepAwake: 'Keep screen awake', volume: 'Volume',
+    autoAdvance: 'Auto advance to next song', keepAwake: 'Keep screen awake', volume: 'Volume', systemLang: 'System language',
     language: 'Language', storage: 'Storage used', close: 'Close',
     keepZip: 'Keep your original .jamcrate.zip — browsers can clear local data.',
     demoSet: 'Try a demo set', demoLoading: 'Loading demo…',
@@ -44,7 +44,7 @@ const STR = {
     importing: 'Импорт…', importFailed: 'Импорт не удался',
     start: 'Играть', back: 'Назад', nowPlaying: 'Играет сейчас',
     fragments: 'Фрагменты', fullSong: 'Вся песня', loopOn: 'Луп',
-    autoAdvance: 'Автопереход к следующей песне', keepAwake: 'Не гасить экран', volume: 'Громкость',
+    autoAdvance: 'Автопереход к следующей песне', keepAwake: 'Не гасить экран', volume: 'Громкость', systemLang: 'Язык системы',
     language: 'Язык', storage: 'Занято памяти', close: 'Закрыть',
     keepZip: 'Храни исходный .jamcrate.zip — браузер может очистить локальные данные.',
     demoSet: 'Попробовать демо-сет', demoLoading: 'Загрузить демо…',
@@ -315,7 +315,7 @@ function renderSets() {
       bundles = await meta.allBundles(); render();
     } catch (e) { toast(String(e.message || e)); render(); }
   });
-  $('#btn-settings')?.addEventListener('click', renderSettings);
+  $('#btn-settings')?.addEventListener('click', e => renderSettings(e));
   $('#btn-lang')?.addEventListener('click', async () => {
     await meta.setSetting('lang', LANG === 'ru' ? 'en' : 'ru');
     await applyLang(); render();
@@ -462,14 +462,16 @@ function updateScrub() {
 }
 
 // ─── settings sheet ────────────────────────────────────────────────────────
-function renderSettings() {
+let settingsAnchor = null;   // rect of the ⚙ that opened the popup
+function renderSettings(ev) {
+  if (ev?.target?.getBoundingClientRect) settingsAnchor = ev.target.getBoundingClientRect();
   const el = $('#settings');
   el.hidden = false;
   el.innerHTML = `
     <div class="sheet">
       <h3>${esc(t('language'))}</h3>
       <select id="s-lang">
-        <option value="system">—</option><option value="en">English</option><option value="ru">Русский</option>
+        <option value="system">${esc(t('systemLang'))}</option><option value="en">English</option><option value="ru">Русский</option>
       </select>
       <h3>${esc(t('autoAdvance'))}</h3><input type="checkbox" id="s-auto" ${autoAdvance ? 'checked' : ''}>
       <h3 id="s-stor-h">${esc(t('storage'))}</h3><div id="s-stor" class="dim">…</div>
@@ -481,9 +483,24 @@ function renderSettings() {
   sel.addEventListener('change', async () => {
     await meta.setSetting('lang', sel.value);
     await applyLang(); render();
+    renderSettings();   // repaint the popup itself in the new language (anchor kept)
   });
   $('#s-auto').addEventListener('change', e => { autoAdvance = e.target.checked; meta.setSetting('autoAdvance', autoAdvance); });
-  $('#s-close').addEventListener('click', () => el.hidden = true);
+  $('#s-close').addEventListener('click', () => { el.hidden = true; settingsAnchor = null; });
+  el.addEventListener('click', e => { if (e.target === el) { el.hidden = true; settingsAnchor = null; } });  // click-outside closes
+  // anchor under the gear that opened it, flip above when short of room
+  const sh = el.querySelector('.sheet');
+  if (settingsAnchor) {
+    const vw = innerWidth, vh = innerHeight, a = settingsAnchor;
+    sh.style.visibility = 'hidden'; sh.style.top = '0px'; sh.style.left = '0px';
+    requestAnimationFrame(() => {
+      const w = sh.offsetWidth, h = sh.offsetHeight;
+      const left = Math.min(Math.max(8, a.left + a.width / 2 - w / 2), vw - w - 8);
+      const below = a.bottom + 8;
+      const top = (below + h + 8 > vh) ? Math.max(8, a.top - h - 8) : below;
+      sh.style.left = left + 'px'; sh.style.top = top + 'px'; sh.style.visibility = '';
+    });
+  }
 }
 
 async function applyLang() {

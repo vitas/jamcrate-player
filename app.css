@@ -44,8 +44,8 @@ input[type=range]{width:100%;accent-color:#d99a26;margin:18px 0 4px}
 .chip.now{border-color:#d99a26;color:#e9b64e}
 label{display:flex;gap:8px;align-items:center}
 #toast{position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#000c;border:1px solid #444;padding:10px 16px;border-radius:12px;font-size:14px;max-width:88vw;z-index:20}
-#settings{position:fixed;inset:0;background:#000a;display:flex;align-items:flex-end;justify-content:center;z-index:30}
-.sheet{background:#1c1f25;width:100%;max-width:560px;border-radius:18px 18px 0 0;padding:20px 20px calc(24px + env(safe-area-inset-bottom))}
+#settings{position:fixed;inset:0;background:#0006;z-index:30}
+.sheet{position:fixed;background:#1c1f25;border:1px solid #2c313a;width:300px;max-width:calc(100vw - 16px);max-height:calc(100vh - 16px);overflow:auto;border-radius:14px;padding:16px;box-shadow:0 12px 40px #0009}
 .sheet h3{margin:16px 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:#9aa0ab}
 .sheet select,.sheet input[type=checkbox]{font:inherit;margin:4px 0}
 
