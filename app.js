@@ -64,6 +64,57 @@ const STR = {
     mirrorIntro: 'Этот сет играет живьём с Mac. На устройстве ничего не сохраняется.',
     offlineTitle: 'Взять сет с собой', offlineText: 'Импортируй копию сета из файла — она сохранится на устройстве и будет играть офлайн, вообще без Mac. Рядом с Mac работает аудиострим: играет звук прямо с него.',
   },
+  de: {
+    appTitle: "JamCrate Player",
+    sets: "Sets",
+    importSet: "Set importieren",
+    firstRun: "Dieser Player verlässt nie dein Gerät. Exportiere ein Set in JamCrate auf dem Mac, schicke die .jamcrate.zip auf dieses Gerät und importiere sie hier.",
+    empty: "Noch keine Sets",
+    songs: "Songs",
+    setlists: "Setlists",
+    delete: "Löschen",
+    deleteAsk: "Dieses Set löschen und den Speicher freigeben?",
+    importing: "Importiere…",
+    importFailed: "Import fehlgeschlagen",
+    start: "Start",
+    back: "Zurück",
+    nowPlaying: "Läuft gerade",
+    fragments: "Fragmente",
+    fullSong: "Ganzer Song",
+    loopOn: "Loop",
+    autoAdvance: "Automatisch zum nächsten Song",
+    keepAwake: "Bildschirm wach halten",
+    volume: "Lautstärke",
+    systemLang: "Systemsprache",
+    language: "Sprache",
+    storage: "Belegter Speicher",
+    close: "Schließen",
+    keepZip: "Behalte die originale .jamcrate.zip — Browser können lokale Daten löschen.",
+    demoSet: "Demo-Set ausprobieren",
+    demoLoading: "Lade Demo…",
+    noManifest: "Kein manifest.json — ist das ein JamCrate-Bundle?",
+    noIndex: "Kein index.json im Bundle.",
+    tooBigIndex: "index.json überschreitet das Größenlimit.",
+    traversal: "Das Bundle enthält einen Pfad außerhalb seiner selbst — abgewiesen, bevor eine Datei geschrieben wurde.",
+    missingAudio: "fehlende Datei",
+    ambiguity: "Zwei Songs haben dieselbe Identität — nicht auflösbar.",
+    corrupt: "Die Datei ließ sich nicht als JamCrate-Bundle lesen.",
+    quota: "Zu wenig Speicherplatz auf diesem Gerät.",
+    imported: "Set importiert",
+    offlineHint: "Nach dem Import offline nutzbar.",
+    gainNote: "Lautstärke auf sicheren Bereich normalisiert",
+    live: "spielt von deinem Mac — hier nichts gespeichert",
+    playOnMac: "▶ am Mac",
+    listenHere: "Hier hören",
+    refresh: "aktualisieren",
+    macPlaying: "Mac spielt",
+    macPaused: "Mac: Pause",
+    macTip: "Zu Hause geht es direkt vom Mac am einfachsten: Telefon ▸ Auf dem Telefon öffnen in der JamCrate-App.",
+    httpWarn: "Hinweis: Diese Seite streamt über unverschlüsseltes http vom Mac, und manche Phones verweigern das Speichern von so einer Seite. Falls der Import nicht klappt — das Set spielt, solange der Mac in der Nähe ist; die Offline-Kopie machst du am besten auf play.jamcrate.app.",
+    mirrorIntro: "Dieses Set spielt live von deinem Mac. Auf diesem Gerät wird nichts gespeichert.",
+    offlineTitle: "Nimm das Set mit",
+    offlineText: "Importiere eine Kopie des Sets aus einer Datei — sie wird auf diesem Gerät gespeichert und spielt offline: ganz ohne Mac. Nur der Livestream braucht den Mac in der Nähe — nicht die Seite selbst."
+  },
 };
 let LANG = 'en';
 const t = k => (STR[LANG][k] ?? STR.en[k] ?? k);
@@ -274,7 +325,7 @@ function renderSets() {
         <p><button class="ghost sm" id="btn-demo">${esc(t('demoSet'))}</button></p>
         <p class="dim small">${esc(t('offlineHint'))}</p>
         <p class="dim small">${esc(t('macTip'))}</p>
-        <p><button class="ghost sm" id="btn-lang">${LANG === 'ru' ? 'English' : 'Русский'}</button></p>
+        <p><button class="ghost sm" id="btn-lang">${LANG === 'en' ? 'Deutsch' : LANG === 'de' ? 'Русский' : 'English'}</button></p>
       </div>`;
   } else {
     el.innerHTML = `<div class="cards">` + bundles.map(b => `
@@ -317,7 +368,7 @@ function renderSets() {
   });
   $('#btn-settings')?.addEventListener('click', e => renderSettings(e));
   $('#btn-lang')?.addEventListener('click', async () => {
-    await meta.setSetting('lang', LANG === 'ru' ? 'en' : 'ru');
+    await meta.setSetting('lang', { en: 'de', de: 'ru', ru: 'en' }[LANG]);
     await applyLang(); render();
   });
   $('#btn-refresh')?.addEventListener('click', () => mirrorBoot(true));
@@ -471,7 +522,7 @@ function renderSettings(ev) {
     <div class="sheet">
       <h3>${esc(t('language'))}</h3>
       <select id="s-lang">
-        <option value="system">${esc(t('systemLang'))}</option><option value="en">English</option><option value="ru">Русский</option>
+        <option value="system">${esc(t('systemLang'))}</option><option value="en">English</option><option value="de">Deutsch</option><option value="ru">Русский</option>
       </select>
       <h3>${esc(t('autoAdvance'))}</h3><input type="checkbox" id="s-auto" ${autoAdvance ? 'checked' : ''}>
       <h3 id="s-stor-h">${esc(t('storage'))}</h3><div id="s-stor" class="dim">…</div>
@@ -506,8 +557,8 @@ function renderSettings(ev) {
 async function applyLang() {
   let pref = await meta.getSetting('lang');
   const q = new URLSearchParams(location.search).get('lang');   // handoff from jamcrate.app
-  if (q === 'ru' || q === 'en') { pref = q; await meta.setSetting('lang', q); history.replaceState(null, '', location.pathname + location.hash); }
-  LANG = (pref && pref !== 'system') ? pref : ((navigator.language || 'en').startsWith('ru') ? 'ru' : 'en');
+  if (['ru', 'en', 'de'].includes(q)) { pref = q; await meta.setSetting('lang', q); history.replaceState(null, '', location.pathname + location.hash); }
+  LANG = (pref && pref !== 'system') ? pref : (/^ru/i.test(navigator.language || '') ? 'ru' : /^de/i.test(navigator.language || '') ? 'de' : 'en');
   setLabels(t, LANG);
 }
 
