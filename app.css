@@ -30,6 +30,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .now .ntitle{font-size:24px;font-weight:800;margin-top:8px}
 .volrow{gap:8px;align-items:center;margin:2px 0 4px}
 .volrow input[type=range]{flex:1;height:20px}
+.volrow input[type=range]::-webkit-slider-thumb{width:26px;height:26px}
+.volrow .small{min-width:38px}
 input[type=range]{width:100%;accent-color:#d99a26;margin:18px 0 4px}
 .times{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-size:13px;color:#9aa0ab}
 .controls{display:flex;justify-content:center;gap:34px;margin:22px 0}

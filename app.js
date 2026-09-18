@@ -32,9 +32,9 @@ const STR = {
     live: 'playing from your Mac — nothing stored here', playOnMac: '▶ on Mac', listenHere: 'Listen here',
     refresh: 'refresh', macPlaying: 'Mac is playing', macPaused: 'Mac: paused',
     macTip: 'At home it is easier to play straight from the Mac: Phone ▸ Open on Your Phone in the JamCrate app.',
-    httpWarn: 'Heads up: this page runs over plain http from the Mac, so some phones refuse to store files here. If the import fails, open the set here and use play.jamcrate.app for the offline copy.',
+    httpWarn: 'Heads up: this page streams from the Mac over plain http, and some phones refuse to store files from a page like that. If the import failed — the set still plays while the Mac is nearby; for an offline copy go to play.jamcrate.app.',
     mirrorIntro: 'This set plays live from your Mac. Nothing is stored on this device.',
-    offlineTitle: 'Take the set with you', offlineText: 'Import a copy of the set from a file — it gets saved on this device and plays offline. No Mac needed after that. The live page works only while the Mac is nearby.',
+    offlineTitle: 'Take the set with you', offlineText: 'Import a copy of the set from a file — it gets saved on this device and plays offline: no Mac needed at all. What only works with the Mac nearby is the live audio stream, not the page itself.',
   },
   ru: {
     appTitle: 'JamCrate Player', sets: 'Сеты', importSet: 'Импортировать сет',
@@ -60,9 +60,9 @@ const STR = {
     live: 'играет с твоего Mac — здесь ничего не сохранено', playOnMac: '▶ на Mac', listenHere: 'Слушать здесь',
     refresh: 'обновить', macPlaying: 'На Mac играет', macPaused: 'Mac: пауза',
     macTip: 'Дома удобнее играть прямо с Mac: в приложении меню «Телефон» ▸ «Открыть на телефоне».',
-    httpWarn: 'Момент: эта страница идёт по http прямо с Mac, и некоторые телефоны не дают сохранять файлы отсюда. Если импорт не выйдет — играй отсюда, а офлайн-копию делай на play.jamcrate.app.',
+    httpWarn: 'Тонкость: страница идёт с Mac по незащищённому http, и некоторые телефоны не дают сохранять с неё файлы. Если импорт не вышел — сет поиграешь с Mac, а офлайн-копию сделай на play.jamcrate.app.',
     mirrorIntro: 'Этот сет играет живьём с Mac. На устройстве ничего не сохраняется.',
-    offlineTitle: 'Взять сет с собой', offlineText: 'Импортируй копию сета из файла — она сохранится на устройстве и будет играть офлайн. Mac больше не нужен. Живая страница работает, только пока Mac рядом.',
+    offlineTitle: 'Взять сет с собой', offlineText: 'Импортируй копию сета из файла — она сохранится на устройстве и будет играть офлайн, вообще без Mac. Рядом с Mac работает аудиострим: играет звук прямо с него.',
   },
 };
 let LANG = 'en';
@@ -390,7 +390,7 @@ function renderNow() {
         <button id="c-play" class="playbtn">▶</button>
         <button id="c-next">⏭</button>
       </div>
-      <div class="row volrow"><span class="dim xs">🔉</span><input type="range" id="vol" min="0" max="100" value="${Math.round(userVol * 100)}" aria-label="${esc(t('volume'))}"><span class="dim xs">🔊</span></div>
+      <div class="row volrow"><span class="dim small">${esc(t('volume'))}</span><input type="range" id="vol" min="0" max="100" value="${Math.round(userVol * 100)}" aria-label="${esc(t('volume'))}"><span class="dim small" id="volpct">${Math.round(userVol * 100)}%</span></div>
       <div class="frags">
         <button class="chip ${!loop ? 'on' : ''}" data-f="-1">${esc(t('fullSong'))}</button>
         ${frags.map((f, i) => f.open
@@ -410,6 +410,7 @@ function renderNow() {
     userVol = e.target.value / 100;
     localStorage.setItem('jc-vol', String(userVol));
     applyVol();
+    $('#volpct').textContent = e.target.value + '%';
   });
   $('#scrub').addEventListener('input', e => {
     if (s.duration) {
