@@ -47,6 +47,16 @@ Regenerate fixtures after desktop model changes:
 | `sw.js` | app-shell cache (bump `V` when any file changes!) |
 | `manifest.webmanifest` | PWA install metadata |
 
+## Hosting
+
+- **Mirror mode needs no hosting at all** — the client ships inside the Mac app
+  and is served straight from the QR URL (`http://<mac>:8090/?k=…`). Offline
+  *copy* buttons there are explained but limited: OPFS requires a secure
+  context, so installs/imports live at **https://player.jamcrate.app**
+  (repo `vitas/jamcrate-player`, GitHub Pages; sync via `tools/publish_player.sh`).
+- DNS for the subdomain: `CNAME player → vitas.github.io` (GitHub issues TLS
+  automatically once the record resolves).
+
 Status: prototype for the v0.1 spec — see
 [`docs/player-prototype-findings.md`](../docs/player-prototype-findings.md)
 for what was verified and everything that went wrong while building it.
