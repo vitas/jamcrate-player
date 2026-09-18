@@ -487,9 +487,9 @@ function renderSettings() {
 }
 
 async function applyLang() {
-  const pref = await meta.getSetting('lang');
+  let pref = await meta.getSetting('lang');
   const q = new URLSearchParams(location.search).get('lang');   // handoff from jamcrate.app
-  if (q === 'ru' || q === 'en') { pref = q; await meta.setSetting('lang', q); history.replaceState(null, '', location.pathname); }
+  if (q === 'ru' || q === 'en') { pref = q; await meta.setSetting('lang', q); history.replaceState(null, '', location.pathname + location.hash); }
   LANG = (pref && pref !== 'system') ? pref : ((navigator.language || 'en').startsWith('ru') ? 'ru' : 'en');
   setLabels(t, LANG);
 }
