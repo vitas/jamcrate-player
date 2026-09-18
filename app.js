@@ -307,9 +307,9 @@ function renderSets() {
   $('#btn-demo')?.addEventListener('click', async (ev) => {
     ev.target.disabled = true; ev.target.textContent = t('demoLoading');
     try {
-      const r = await fetch('fixtures/demo-set.jamcrate.zip');   // real licensed tracks, see below
+      const r = await fetch('fixtures/demo-set-v2.jamcrate.zip');   // real licensed tracks, see below
       if (!r.ok) throw new Error('fixture unavailable');
-      await importFile(new File([await r.blob()], 'demo-set.jamcrate.zip'));
+      await importFile(new File([await r.blob()], 'demo-set-v2.jamcrate.zip'));
       bundles = await meta.allBundles(); render();
     } catch (e) { toast(String(e.message || e)); render(); }
   });
