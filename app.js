@@ -16,7 +16,7 @@ const STR = {
     importing: 'Importing…', importFailed: 'Import failed',
     start: 'Start', back: 'Back', nowPlaying: 'Now playing',
     fragments: 'Fragments', fullSong: 'Full song', loopOn: 'Loop',
-    autoAdvance: 'Auto advance to next song', keepAwake: 'Keep screen awake',
+    autoAdvance: 'Auto advance to next song', keepAwake: 'Keep screen awake', volume: 'Volume',
     language: 'Language', storage: 'Storage used', close: 'Close',
     keepZip: 'Keep your original .jamcrate.zip — browsers can clear local data.',
     demoSet: 'Try a demo set', demoLoading: 'Loading demo…',
@@ -44,7 +44,7 @@ const STR = {
     importing: 'Импорт…', importFailed: 'Импорт не удался',
     start: 'Играть', back: 'Назад', nowPlaying: 'Играет сейчас',
     fragments: 'Фрагменты', fullSong: 'Вся песня', loopOn: 'Луп',
-    autoAdvance: 'Автопереход к следующей песне', keepAwake: 'Не гасить экран',
+    autoAdvance: 'Автопереход к следующей песне', keepAwake: 'Не гасить экран', volume: 'Громкость',
     language: 'Язык', storage: 'Занято памяти', close: 'Закрыть',
     keepZip: 'Храни исходный .jamcrate.zip — браузер может очистить локальные данные.',
     demoSet: 'Попробовать демо-сет', demoLoading: 'Грузим демо…',
@@ -176,6 +176,12 @@ let view = { screen: 'sets', bundle: null, setlist: null, queue: null, qi: -1 };
 let loop = null;              // {s, e, fragIdx}
 let loopTimer = null;
 let autoAdvance = false;
+// device-local mixer: user volume multiplies the per-song gain; remembered here only
+const storedVol = localStorage.getItem('jc-vol');
+let userVol = storedVol === null ? 1 : Number(storedVol);
+if (!Number.isFinite(userVol) || userVol < 0 || userVol > 1) userVol = 1;
+let volBase = 1; // normalized song gain, set at load
+const applyVol = () => { audio.volume = Math.min(1, volBase * userVol); };
 let wakeLock = null;
 const mirrorK = new URLSearchParams(location.search).get('k');
 let macState = null;
@@ -205,7 +211,9 @@ async function playSong(song) {
     catch { toast(`${song.title} — ${t('missingAudio')}`); return; }
   }
   audio.src = url;
-  audio.volume = Math.min(1, Math.max(0, song.gain * b.scale));
+  const base = song.gain * b.scale;
+  volBase = Number.isFinite(base) ? Math.min(1, Math.max(0, base)) : 1;
+  applyVol();
   await audio.play().catch(e => toast(String(e.name || '') === 'NotAllowedError' ? '▶ first tap (autoplay policy)' : e.message));
   if (loop) startLoopWatch();
   updateNow();
@@ -382,6 +390,7 @@ function renderNow() {
         <button id="c-play" class="playbtn">▶</button>
         <button id="c-next">⏭</button>
       </div>
+      <div class="row volrow"><span class="dim xs">🔉</span><input type="range" id="vol" min="0" max="100" value="${Math.round(userVol * 100)}" aria-label="${esc(t('volume'))}"><span class="dim xs">🔊</span></div>
       <div class="frags">
         <button class="chip ${!loop ? 'on' : ''}" data-f="-1">${esc(t('fullSong'))}</button>
         ${frags.map((f, i) => f.open
@@ -397,6 +406,11 @@ function renderNow() {
   $('#c-play').addEventListener('click', () => { if (audio.paused) audio.play(); else audio.pause(); });
   $('#c-prev').addEventListener('click', prev);
   $('#c-next').addEventListener('click', () => next());
+  $('#vol').addEventListener('input', e => {
+    userVol = e.target.value / 100;
+    localStorage.setItem('jc-vol', String(userVol));
+    applyVol();
+  });
   $('#scrub').addEventListener('input', e => {
     if (s.duration) {
       audio.currentTime = (e.target.value / 1000) * (audio.duration || s.duration);
