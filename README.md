@@ -14,7 +14,7 @@ python3 -m http.server 8124 --bind 0.0.0.0
 ```
 
 For a phone on the same Wi-Fi use `http://<mac-ip>:8124` (iOS Safari tab is
-the primary real-world path until player.jamcrate.app ships with TLS).
+the primary real-world path until play.jamcrate.app ships with TLS).
 
 ## Try it in one minute
 
@@ -52,7 +52,7 @@ Regenerate fixtures after desktop model changes:
 - **Mirror mode needs no hosting at all** — the client ships inside the Mac app
   and is served straight from the QR URL (`http://<mac>:8090/?k=…`). Offline
   *copy* buttons there are explained but limited: OPFS requires a secure
-  context, so installs/imports live at **https://player.jamcrate.app**
+  context, so installs/imports live at **https://play.jamcrate.app**
   (repo `vitas/jamcrate-player`, GitHub Pages; sync via `tools/publish_player.sh`).
 - DNS for the subdomain: `CNAME player → vitas.github.io` (GitHub issues TLS
   automatically once the record resolves).
