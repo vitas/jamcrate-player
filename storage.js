@@ -69,13 +69,15 @@ export const media = {
     await w.write(blob);
     await w.close();
   },
-  async fileURL(id, revTag, relPath) {
+  async bundleFile(id, revTag, relPath) {
     const parts = relPath.split('/');
     let dir = await this.bundleDir(id, revTag, false);
     for (const seg of parts.slice(0, -1)) dir = await dir.getDirectoryHandle(seg);
     const fh = await dir.getFileHandle(parts[parts.length - 1]);
-    const f = await fh.getFile();
-    return URL.createObjectURL(f);
+    return fh.getFile();
+  },
+  async fileURL(id, revTag, relPath) {
+    return URL.createObjectURL(await this.bundleFile(id, revTag, relPath));
   },
   async dropBundle(id) {
     const r = await this.root();
