@@ -28,10 +28,11 @@ const STR = {
     quota: 'Not enough storage space on this device.',
     imported: 'Set imported', offlineHint: 'Works offline once imported.',
     gainNote: 'volume normalized to safe range',
-    live: 'live — streamed from Mac', playOnMac: '▶ on Mac', listenHere: 'Listen here',
+    live: 'playing from your Mac — nothing stored here', playOnMac: '▶ on Mac', listenHere: 'Listen here',
     refresh: 'refresh', macPlaying: 'Mac is playing', macPaused: 'Mac: paused',
-    mirrorIntro: 'This page streams the library straight from your Mac. Nothing is stored on this device.',
-    offlineTitle: 'Leave without your Mac?', offlineText: 'Import a copy of the set from a file — it gets saved on this device and plays offline. The mirror stays live only while the Mac is nearby.',
+    macTip: 'At home it is easier to play straight from the Mac: Phone ▸ Open on Your Phone in the JamCrate app.',
+    mirrorIntro: 'This set plays live from your Mac. Nothing is stored on this device.',
+    offlineTitle: 'Take the set with you', offlineText: 'Import a copy of the set from a file — it gets saved on this device and plays offline. No Mac needed after that. The live page works only while the Mac is nearby.',
   },
   ru: {
     appTitle: 'JamCrate Player', sets: 'Сеты', importSet: 'Импортировать сет',
@@ -54,10 +55,11 @@ const STR = {
     quota: 'На устройстве не хватит места.',
     imported: 'Сет импортирован', offlineHint: 'После импорта работает офлайн.',
     gainNote: 'громкость приведена к безопасному диапазону',
-    live: 'живьём — стрим с Mac', playOnMac: '▶ на Mac', listenHere: 'Слушать здесь',
+    live: 'играет с твоего Mac — здесь ничего не сохранено', playOnMac: '▶ на Mac', listenHere: 'Слушать здесь',
     refresh: 'обновить', macPlaying: 'На Mac играет', macPaused: 'Mac: пауза',
-    mirrorIntro: 'Эта страница стримит библиотеку прямо с Mac. На устройстве ничего не сохраняется.',
-    offlineTitle: 'Уходишь без Mac?', offlineText: 'Импортируй копию сета из файла — она сохранится на этом устройстве и будет играть офлайн. Зеркало живёт, только пока Mac рядом.',
+    macTip: 'Дома удобнее играть прямо с Mac: в приложении меню «Телефон» ▸ «Открыть на телефоне».',
+    mirrorIntro: 'Этот сет играет живьём с Mac. На устройстве ничего не сохраняется.',
+    offlineTitle: 'Взять сет с собой', offlineText: 'Импортируй копию сета из файла — она сохранится на устройстве и будет играть офлайн. Mac больше не нужен. Живая страница работает, только пока Mac рядом.',
   },
 };
 let LANG = 'en';
@@ -348,6 +350,7 @@ function renderSets() {
         <button class="cta" id="btn-import">${esc(t('importSet'))}</button>
         <p><button class="ghost sm" id="btn-demo">${esc(t('demoSet'))}</button></p>
         <p class="dim small">${esc(t('offlineHint'))}</p>
+        <p class="dim small">${esc(t('macTip'))}</p>
       </div>`;
   } else {
     el.innerHTML = `<div class="cards">` + bundles.map(b => `
