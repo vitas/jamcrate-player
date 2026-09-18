@@ -242,12 +242,11 @@ async function importFile(file) {
   const bundle = await normalizeBundle(man, idx, sidecarOf, file.name, file.size);
   bundle.mediaTag = importTag;
   // FR 015 replacement semantics: newer revision of same id replaces the old dir after publish
-  const prev = await getBundle(bundle.id);
   await meta.putBundle(bundle);   // publish point — single record flip
-  if (prev && prev.mediaTag && prev.mediaTag !== importTag) {
-    const b = await (await media.root()).getDirectoryHandle('bundles');
-    await b.getDirectoryHandle(bundle.id).then(i => i.removeEntry(prev.mediaTag, { recursive: true })).catch(() => {});
-  }
+  // FR 015: the superseded revision is NOT deleted here. An open session may
+  // still be playing through it (next track resolves by the OLD mediaTag),
+  // and the reviewer was right: immediate cleanup can eat live audio. The
+  // boot sweep already reaps every unreferenced folder — deferred by design.
   return bundle;
 }
 
@@ -263,8 +262,6 @@ let wakeLock = null;
 const mirrorK = new URLSearchParams(location.search).get('k');
 let macState = null;
 let es = null;
-
-function getBundle(id) { return meta.getBundle ? meta.getBundle(id) : meta.allBundles().then(bs => bs.find(b => b.id === id)); }
 
 // ─── audio engine ──────────────────────────────────────────────────────────
 function clearLoopWatch() { if (loopTimer) { clearInterval(loopTimer); loopTimer = null; } }
