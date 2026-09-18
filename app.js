@@ -47,7 +47,7 @@ const STR = {
     autoAdvance: 'Автопереход к следующей песне', keepAwake: 'Не гасить экран', volume: 'Громкость',
     language: 'Язык', storage: 'Занято памяти', close: 'Закрыть',
     keepZip: 'Храни исходный .jamcrate.zip — браузер может очистить локальные данные.',
-    demoSet: 'Попробовать демо-сет', demoLoading: 'Грузим демо…',
+    demoSet: 'Попробовать демо-сет', demoLoading: 'Загрузить демо…',
     noManifest: 'Нет manifest.json — это бандл JamCrate?',
     noIndex: 'В бандле нет index.json.',
     tooBigIndex: 'index.json превышает лимит размера.',
@@ -359,7 +359,7 @@ function renderSet() {
       </li>`).join('') + `
     </ol>
     <div class="row"><button class="cta" id="b-play">${esc(t('start'))} ▸</button></div>`;
-  $('#b-back').addEventListener('click', () => { view.screen = 'sets'; render(); });
+  $('#b-back').addEventListener('click', () => { audio.pause(); view.screen = 'sets'; render(); });
   $('#b-play').addEventListener('click', () => { view.screen = 'now'; render(); playSong(view.queue[view.qi]); });
   el.querySelectorAll('li').forEach(li => li.addEventListener('click', () => {
     if (li.querySelector('.macbtn')?.dataset.hit) return;
@@ -402,7 +402,7 @@ function renderNow() {
         <label><input type="checkbox" id="c-wake" ${wakeLock ? 'checked' : ''}> ${esc(t('keepAwake'))}</label>
       </div>
     </div>`;
-  $('#n-back').addEventListener('click', () => { view.screen = 'sets'; render(); });
+  $('#n-back').addEventListener('click', () => { audio.pause(); view.screen = 'sets'; render(); });
   $('#c-play').addEventListener('click', () => { if (audio.paused) audio.play(); else audio.pause(); });
   $('#c-prev').addEventListener('click', prev);
   $('#c-next').addEventListener('click', () => next());
@@ -446,6 +446,13 @@ function updateScrub() {
   const dur = audio.duration || (view.queue && view.queue[view.qi]?.duration) || 0;
   if (dur) el.value = String(Math.round((audio.currentTime / dur) * 1000));
   const tc = $('#t-cur'); if (tc) tc.textContent = fmt(audio.currentTime);
+  // light the fragment chip we are currently inside — position cue, independent
+  // of the amber "armed loop" (.on). Owner: "соло играет, а кнопка не подсвечена".
+  const t = audio.currentTime;
+  document.querySelectorAll('[data-f]:not([data-f="-1"])').forEach(ch => {
+    const f = (view.queue && view.queue[view.qi]?.fragments || [])[Number(ch.dataset.f)];
+    ch.classList.toggle('now', !!f && !f.open && t >= f.s && t < (f.e ?? Infinity) && !ch.classList.contains('on'));
+  });
 }
 
 // ─── settings sheet ────────────────────────────────────────────────────────
@@ -564,4 +571,6 @@ boot();
 
 // service worker: only meaningful in a secure context; on the mirror's
 // http://IP origin register() rejects — swallow it (was an unhandled rejection)
+document.addEventListener('visibilitychange', () => { if (document.hidden) audio.pause(); }); // iOS Home
+
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});

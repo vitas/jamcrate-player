@@ -41,6 +41,7 @@ input[type=range]{width:100%;accent-color:#d99a26;margin:18px 0 4px}
 .chip{border:1px solid #3a3f48;border-radius:999px;padding:7px 13px;font-size:13px;color:#cfd2d7}
 .chip.on{background:#d99a26;color:#231c0c;border-color:#d99a26;font-weight:700}
 .chip.pt{border-style:dashed}
+.chip.now{border-color:#d99a26;color:#e9b64e}
 label{display:flex;gap:8px;align-items:center}
 #toast{position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#000c;border:1px solid #444;padding:10px 16px;border-radius:12px;font-size:14px;max-width:88vw;z-index:20}
 #settings{position:fixed;inset:0;background:#000a;display:flex;align-items:flex-end;justify-content:center;z-index:30}
