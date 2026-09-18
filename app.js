@@ -31,6 +31,7 @@ const STR = {
     live: 'playing from your Mac — nothing stored here', playOnMac: '▶ on Mac', listenHere: 'Listen here',
     refresh: 'refresh', macPlaying: 'Mac is playing', macPaused: 'Mac: paused',
     macTip: 'At home it is easier to play straight from the Mac: Phone ▸ Open on Your Phone in the JamCrate app.',
+    httpWarn: 'Heads up: this page runs over plain http from the Mac, so some phones refuse to store files here. If the import fails, open the set here and use player.jamcrate.app for the offline copy.',
     mirrorIntro: 'This set plays live from your Mac. Nothing is stored on this device.',
     offlineTitle: 'Take the set with you', offlineText: 'Import a copy of the set from a file — it gets saved on this device and plays offline. No Mac needed after that. The live page works only while the Mac is nearby.',
   },
@@ -58,6 +59,7 @@ const STR = {
     live: 'играет с твоего Mac — здесь ничего не сохранено', playOnMac: '▶ на Mac', listenHere: 'Слушать здесь',
     refresh: 'обновить', macPlaying: 'На Mac играет', macPaused: 'Mac: пауза',
     macTip: 'Дома удобнее играть прямо с Mac: в приложении меню «Телефон» ▸ «Открыть на телефоне».',
+    httpWarn: 'Момент: эта страница идёт по http прямо с Mac, и некоторые телефоны не дают сохранять файлы отсюда. Если импорт не выйдет — играй отсюда, а офлайн-копию делай на player.jamcrate.app.',
     mirrorIntro: 'Этот сет играет живьём с Mac. На устройстве ничего не сохраняется.',
     offlineTitle: 'Взять сет с собой', offlineText: 'Импортируй копию сета из файла — она сохранится на устройстве и будет играть офлайн. Mac больше не нужен. Живая страница работает, только пока Mac рядом.',
   },
@@ -371,6 +373,7 @@ function renderSets() {
       <div class="offlinebox">
         <div class="offline-head">✈️ ${esc(t('offlineTitle'))}</div>
         <p class="dim small">${esc(t('offlineText'))}</p>
+        ${window.isSecureContext ? '' : `<p class="dim xs">${esc(t('httpWarn'))}</p>`}
         <div class="row"><button class="cta sm" id="btn-import">${esc(t('importSet'))}</button>
         <button class="ghost sm" id="btn-settings">⚙</button></div>
         <p class="dim xs">${esc(t('keepZip'))}</p>

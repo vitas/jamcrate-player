@@ -1,5 +1,5 @@
 // App-shell cache, versioned. Bumped by hand per prototype build.
-const V = 'jcplayer-p0-16';
+const V = 'jcplayer-p0-17';
 const SHELL = ['.', 'index.html', 'app.js', 'zipimport.js', 'storage.js', 'app.css', 'manifest.webmanifest', 'icons/favicon.png'];
 self.addEventListener('install', e => e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())));
 self.addEventListener('activate', e => e.waitUntil(
