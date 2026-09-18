@@ -451,7 +451,7 @@ function updateScrub() {
   const t = audio.currentTime;
   document.querySelectorAll('[data-f]:not([data-f="-1"])').forEach(ch => {
     const f = (view.queue && view.queue[view.qi]?.fragments || [])[Number(ch.dataset.f)];
-    ch.classList.toggle('now', !!f && !f.open && t >= f.s && t < (f.e ?? Infinity) && !ch.classList.contains('on'));
+    ch.classList.toggle('now', !!f && !f.open && !audio.paused && t >= f.s && t < (f.e ?? Infinity) && !ch.classList.contains('on'));
   });
 }
 
