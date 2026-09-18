@@ -274,6 +274,7 @@ function renderSets() {
         <p><button class="ghost sm" id="btn-demo">${esc(t('demoSet'))}</button></p>
         <p class="dim small">${esc(t('offlineHint'))}</p>
         <p class="dim small">${esc(t('macTip'))}</p>
+        <p><button class="ghost sm" id="btn-lang">${LANG === 'ru' ? 'English' : 'Русский'}</button></p>
       </div>`;
   } else {
     el.innerHTML = `<div class="cards">` + bundles.map(b => `
@@ -297,6 +298,7 @@ function renderSets() {
         ${window.isSecureContext ? '' : `<p class="dim xs">${esc(t('httpWarn'))}</p>`}
         <div class="row"><button class="cta sm" id="btn-import">${esc(t('importSet'))}</button>
         <button class="ghost sm" id="btn-settings">⚙</button></div>
+        <p class="dim xs">jamcrate.app · <a href="https://play.jamcrate.app" style="color:inherit">${esc(t('language')) === 'Язык' ? 'Русский' : 'English'} ▸</a></p>
         <p class="dim xs">${esc(t('keepZip'))}</p>
       </div>` : `
       <div class="row"><button class="cta" id="btn-import">${esc(t('importSet'))}</button>
@@ -314,6 +316,10 @@ function renderSets() {
     } catch (e) { toast(String(e.message || e)); render(); }
   });
   $('#btn-settings')?.addEventListener('click', renderSettings);
+  $('#btn-lang')?.addEventListener('click', async () => {
+    await meta.setSetting('lang', LANG === 'ru' ? 'en' : 'ru');
+    await applyLang(); render();
+  });
   $('#btn-refresh')?.addEventListener('click', () => mirrorBoot(true));
   el.querySelectorAll('[data-open]').forEach(btn => btn.addEventListener('click', () => {
     const b = bundles.find(x => x.id === btn.dataset.open);
@@ -482,6 +488,8 @@ function renderSettings() {
 
 async function applyLang() {
   const pref = await meta.getSetting('lang');
+  const q = new URLSearchParams(location.search).get('lang');   // handoff from jamcrate.app
+  if (q === 'ru' || q === 'en') { pref = q; await meta.setSetting('lang', q); history.replaceState(null, '', location.pathname); }
   LANG = (pref && pref !== 'system') ? pref : ((navigator.language || 'en').startsWith('ru') ? 'ru' : 'en');
   setLabels(t, LANG);
 }
