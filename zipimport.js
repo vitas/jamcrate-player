@@ -98,7 +98,9 @@ export async function openZip(file) {
     if (isDir) continue;
     entries.push({ name, method, csize: csizeF, usize: usizeF, localHeader: offF });
   }
-  // ratio gate over the whole archive (bomb = huge declared total, tiny bytes)
+  // ratio gate over the whole archive. Heuristic only: both numbers are DECLARED,
+  // so a bomb that declares a small total slips past this — inflateCapped is what
+  // actually stops it.
   const totalU = entries.reduce((s, e) => s + e.usize, 0);
   const totalC = entries.reduce((s, e) => s + e.csize, 0);
   if (totalC > 0 && totalU / totalC > LIMITS.maxRatio * 4 && totalU > 100_000_000) {
@@ -106,6 +108,9 @@ export async function openZip(file) {
   }
   const byName = new Map(entries.map(e => [e.name, e]));
 
+  // The declared sizes above are ATTACKER-CONTROLLED, so they can only ever be a
+  // pre-filter. The real gate is `inflateCapped` below, which counts the bytes
+  // that actually come out of the decompressor.
   async function extract(entry) {
     if (entry.csize > LIMITS.maxEntryBytes || entry.usize > LIMITS.maxEntryBytes) {
       throw new ZipError(`entry too big: ${entry.name}`);
@@ -126,12 +131,46 @@ export async function openZip(file) {
       const comp = file.slice(start, start + entry.csize);
       // streamed raw-inflate; keeps peak memory at one file, not the bundle (NFR 04)
       const stream = comp.stream().pipeThrough(new DecompressionStream('deflate-raw'));
-      return new Response(stream).blob();
+      return inflateCapped(stream, entry);
     }
     throw new ZipError(`unsupported compression method ${entry.method} in ${entry.name}`);
   }
 
   return { entries, byName, extract };
+}
+
+// Inflate with a hard ceiling on the bytes that ACTUALLY come out.
+//
+// `new Response(stream).blob()` buffered the whole thing with no limit, so a few
+// KB of deflate could expand to gigabytes and take the tab down: a zip bomb. The
+// declared usize cannot be trusted to prevent that — it is just a number in the
+// file, and a bomb simply declares a small one.
+//
+// So the output is counted as it arrives. The ceiling is the declared usize when
+// the writer provided one (per the format, output MUST NOT exceed it — going over
+// proves the entry is lying), otherwise the absolute per-entry cap.
+async function inflateCapped(stream, entry) {
+  const declared = entry.usize > 0 ? entry.usize : LIMITS.maxEntryBytes;
+  const cap = Math.min(declared, LIMITS.maxEntryBytes);
+  const reader = stream.getReader();
+  const chunks = [];
+  let total = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > cap) {
+        throw new ZipError(
+          `entry expands past its declared size (${entry.name}: >${cap} bytes) — refusing`);
+      }
+      chunks.push(value);
+    }
+  } finally {
+    // release the decompressor even on the throw path
+    try { await reader.cancel(); } catch { /* already closed */ }
+  }
+  return new Blob(chunks);
 }
 
 // path acceptance: inside-root only, no traversal tricks, unicode-normalized
