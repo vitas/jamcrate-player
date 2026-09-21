@@ -321,8 +321,8 @@ function renderSets() {
         <div class="bigicon">♬</div>
         <h2>${esc(t('empty'))}</h2>
         <p>${esc(t('firstRun'))}</p>
-        <button class="cta" id="btn-import">${esc(t('importSet'))}</button>
-        <p><button class="ghost sm" id="btn-demo">${esc(t('demoSet'))}</button></p>
+        <button class="cta" id="btn-demo">${esc(t('demoSet'))}</button>
+        <p><button class="ghost sm" id="btn-import">${esc(t('importSet'))}</button></p>
         <p class="dim small">${esc(t('offlineHint'))}</p>
         <p class="dim small">${esc(t('macTip'))}</p>
         <p><button class="ghost sm" id="btn-lang">${LANG === 'en' ? 'Deutsch' : LANG === 'de' ? 'Русский' : 'English'}</button></p>
